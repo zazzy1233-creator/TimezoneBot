@@ -7,7 +7,7 @@ const app = express();
 const DISCORD_BOT_TOKEN = process.env.DISCORD_BOT_TOKEN;
 const GUILD_ID = process.env.GUILD_ID;
 
-// Add all timezone roles here
+// Your timezone role IDs here
 const timezoneRoles = {
   GMT: '1355249922546335764',
   EST: '1355249948089647154',
@@ -40,6 +40,12 @@ app.post('/assign-role', async (req, res) => {
 
     if (!member) {
       return res.status(404).send('User not found in guild.');
+    }
+
+    // Remove all timezone roles before adding the new one
+    const rolesToRemove = Object.values(timezoneRoles).filter(r => member.roles.cache.has(r));
+    for (const r of rolesToRemove) {
+      await member.roles.remove(r);
     }
 
     if (!member.roles.cache.has(roleId)) {
